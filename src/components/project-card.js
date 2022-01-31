@@ -63,6 +63,12 @@ class ProjectCard extends LitElement {
                 }
             }
 
+            @media only screen and (min-width: 1500px) {
+                :host{
+                    width: 25%;
+                }
+            }
+
             :host{
                 box-sizing: border-box;
                 padding: 10px;
@@ -145,6 +151,10 @@ class ProjectCard extends LitElement {
                 color: rgba(0,0,255,0.6);
                 margin-bottom: 4px;
             }
+
+            .menu-icon{
+                color: grey;
+            }
         `];
     }
 
@@ -184,24 +194,24 @@ class ProjectCard extends LitElement {
                         ${this.projectDetails.name[0]}
                     </div>
                     <h2>${this.projectDetails.name}</h2>
-                    <paper-menu-button class="menu-button">
+                    <paper-menu-button class="menu-button" no-animations>
                         <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                         <paper-listbox slot="dropdown-content">
                             <paper-item>
                                 <paper-icon-item>
-                                    <iron-icon icon="info" slot="item-icon"></iron-icon>
+                                    <iron-icon class="menu-icon"icon="info" slot="item-icon"></iron-icon>
                                     View Details
                                 </paper-icon-item>
                             </paper-item>
                             <paper-item>
                                 <paper-icon-item>
-                                    <iron-icon icon="create" slot="item-icon"></iron-icon>
+                                    <iron-icon class="menu-icon" icon="create" slot="item-icon"></iron-icon>
                                     Edit
                                 </paper-icon-item>
                             </paper-item>
-                            <paper-item>
+                            <paper-item @click=${()=>this.toggleConfirmDialog(this.projectDetails)}>
                                 <paper-icon-item>
-                                    <iron-icon icon="delete" slot="item-icon"></iron-icon>
+                                    <iron-icon class="menu-icon" icon="delete" slot="item-icon"></iron-icon>
                                     Delete
                                 </paper-icon-item>
                             </paper-item>

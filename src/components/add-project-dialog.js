@@ -62,6 +62,20 @@ class AddProjectDialog extends LitElement {
                 margin: 25px 0px;
             }
 
+            .select-container{
+                width: 100%;
+                position: relative;
+            }
+
+            .select-container label{
+                position: absolute;
+                top: 7px;
+                left: 19px;
+                font-weight: bold;
+                font-size: 13px;
+                background-color: white;
+            }
+
             .custom-select{
                 width: 100%;
                 border-radius: 5px;
@@ -71,6 +85,14 @@ class AddProjectDialog extends LitElement {
                 padding-bottom: 6px;
                 padding-left: 17px;
                 outline: none;
+            }
+
+            .custom-select:focus{
+                border: 1px solid #29B6F6;
+            }
+
+            .select-container option{
+                padding: 10px;
             }
 
             .buttons{
@@ -107,7 +129,14 @@ class AddProjectDialog extends LitElement {
              * 
              * @type { closeDialog: Function} 
              */
-            closeDialog: { type: Function }
+            closeDialog: { type: Function },
+            
+            /**
+             * Function that adds new project.
+             * 
+             * @type { addProject: Function} 
+             */
+            addProject: { type: Function }
         }
     }
 
@@ -141,12 +170,17 @@ class AddProjectDialog extends LitElement {
         }else{
             validated = false;
         }
+
+        if(this.shadowRoot.querySelector('#project-status').value){
+            newProject.status = this.shadowRoot.querySelector('#project-status').value;
+        }
+
+        newProject.pipeline = [{ name: "ASP Pipeline", stage: "Lead Identification"}]
         
-        // validated = this.shadowRoot.querySelector('#name').validate();
-        // validated = validated? this.shadowRoot.querySelector('#description').validate(): validated;
-        // validated = validated? this.shadowRoot.querySelector('#priority').validate(): validated;
         if(validated === true){
             console.log(newProject);
+            this.addProject(newProject);
+            this.closeDialog();
         }
     }
 
@@ -251,15 +285,19 @@ class AddProjectDialog extends LitElement {
                     <paper-dropdown-menu class="custom" label="Project Type *"
                      horizontal-align="left" noink no-animations required>
                         <paper-listbox slot="dropdown-content" selected="0">
-                            <paper-item>Internal Project</paper-item>
                             <paper-item>External Project</paper-item>
+                            <paper-item>Internal Project</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
 
-                    <select class="custom-select" id="project-status" required>
-                        <option selected value="in progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                    </select>
+                    <div class="select-container">
+                        <label for="project-status">Project Status</label>
+                        <select class="custom-select" id="project-status" required>
+                            <option selected value="in progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="attrited">Attrited</option>
+                        </select>
+                    </div>
 
                     <paper-textarea class="custom" rows="3" always-float-label label="Status Description">
                     </paper-textarea>

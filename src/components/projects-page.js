@@ -3,6 +3,7 @@ import { projects } from '../modules/projects';
 import { getLocalObject, setLocalObject } from '../modules/localObject';
 
 import './project-card';
+import './confirm-dialog';
 import './add-project-dialog';
 
 import '@polymer/iron-icon/iron-icon.js';
@@ -118,11 +119,25 @@ class ProjectsPage extends LitElement {
             searchItem: { type: String },
 
             /**
-             * The text after pressing search button.
+             * The project currently being edited.
              * 
-             * @type { searchItem: String } 
+             * @type { editedProject: Object } 
+             */
+            editedProject: { type: Object },
+
+            /**
+             * Opens or closes the add project dialogue.
+             * 
+             * @type { isAddDialogOn: Boolean } 
              */
             isAddDialogOn : { type: Boolean },
+
+            /**
+             * Opens or closes the confirm delete dialogue.
+             * 
+             * @type { isConfirmDialogOn: Boolean } 
+             */
+            isConfirmDialogOn : { type: Boolean },
         }
     }
 
@@ -142,10 +157,48 @@ class ProjectsPage extends LitElement {
             this.projects = projects;
             setLocalObject("projects", this.projects);
         }
+
+        this.editedProject=this.projects[0];
     }
 
-    toggleAddDailog(){
+    /**
+     * Toggle the value of parameter isAddDialogueOn.
+     */
+    toggleAddDialog(){
         this.isAddDialogOn = !this.isAddDialogOn;
+    }
+
+    /**
+     * Toggle the value of parameter isConfirmDialogueOn.
+     * 
+     * @param {Object} project - The project currently being edited.
+     */
+    toggleConfirmDialog(project){
+        if(project){
+            this.editedProject = project;
+        }
+        this.isConfirmDialogOn = !this.isConfirmDialogOn;
+    }
+
+    /**
+     * Deletes a project.
+     * 
+     * @param {Number} projectId - The id of the project to be deleted.
+     */
+    deleteProject(projectId){
+        let newProjects = this.projects.filter(project => project.id!==projectId);
+        this.projects= [...newProjects];
+    }
+
+    /**
+     * Adds a project.
+     * 
+     * @param {Object} project - The project to be added.
+     */
+    addProject(project){
+        if(project){
+            this.projects = [ project, ...this.projects ];
+        }
     }
 
     /**
@@ -201,7 +254,7 @@ class ProjectsPage extends LitElement {
                             }
                         }else{
                             return html`
-                                <project-card .projectDetails=${project}></project-card>
+                                <project-card .projectDetails=${project} .toggleConfirmDialog=${this.toggleConfirmDialog.bind(this)}></project-card>
                             `;
                         }
                         
@@ -209,8 +262,12 @@ class ProjectsPage extends LitElement {
                 }
             </div>
 
-            <paper-icon-button class="add-project-button" icon="add" @click=${this.toggleAddDailog}></paper-icon-button>
-            <add-project-dialog .opened=${this.isAddDialogOn} .closeDialog=${this.toggleAddDailog.bind(this)}></add-project-dialog>
+            <paper-icon-button class="add-project-button" icon="add" @click=${this.toggleAddDialog}></paper-icon-button>
+            <add-project-dialog .opened=${this.isAddDialogOn} .closeDialog=${this.toggleAddDialog.bind(this)}
+             .addProject=${this.addProject.bind(this)}></add-project-dialog>
+            
+            <confirm-dialog .opened=${this.isConfirmDialogOn} .closeDialog=${this.toggleConfirmDialog.bind(this)}
+             .deleteProject=${this.deleteProject.bind(this)} .editedProject=${this.editedProject}></confirm-dialog>
             
         `)
     }
