@@ -10,6 +10,8 @@ import '@polymer/paper-menu-button/paper-menu-button.js';
 /**
  * <project-card
  *  projectDetails = "Object of individual project detail."
+ *  toggleEditDialog = "Function to toggle edit project dialog."
+ *  toggleConfirmDialog = "Function to toggle confirm delete project dialog."
  * ></project-card>
  */
 class ProjectCard extends LitElement {
@@ -171,6 +173,20 @@ class ProjectCard extends LitElement {
              * @type { projectDetails: Object} 
              */
             projectDetails: { type: Object },
+
+            /**
+             * Function to toggle Edit project dialog.
+             * 
+             * @type { toggleEditDialog: Function} 
+             */
+            toggleEditDialog: { type: Function },
+
+            /**
+             * Function to toggle confirm delete project dialog.
+             * 
+             * @type { toggleConfirmDialog: Function} 
+             */
+            toggleConfirmDialog: { type: Function },
         }
     }
 
@@ -203,7 +219,7 @@ class ProjectCard extends LitElement {
                                     View Details
                                 </paper-icon-item>
                             </paper-item>
-                            <paper-item>
+                            <paper-item @click=${()=>this.toggleEditDialog(this.projectDetails)}>
                                 <paper-icon-item>
                                     <iron-icon class="menu-icon" icon="create" slot="item-icon"></iron-icon>
                                     Edit

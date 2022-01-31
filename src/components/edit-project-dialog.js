@@ -1,6 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
 
-
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/iron-icons/iron-icons.js';
@@ -11,12 +10,13 @@ import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-listbox/paper-listbox.js';
 
 /**
- * <add-project-dialog
+ * <edit-project-dialog
  *  opened = "The value that opens or close modal."
  *  closeDialog = "Function that closes the modal."
  *  addProject = "Function that adds new project."
+ * ></edit-project-dialog>
  */
-class AddProjectDialog extends LitElement {
+class EditProjectDialog extends LitElement {
     /**
      * Styles for the component.
      * 
@@ -177,7 +177,12 @@ class AddProjectDialog extends LitElement {
              * 
              * @type { pipelineData: Array} 
              */
-            pipelineData: { type: Array }
+            pipelineData: { type: Array },
+
+            editedProject: { type: Object },
+
+            newEditedProject: { type: Object },
+
         }
     }
 
@@ -188,14 +193,34 @@ class AddProjectDialog extends LitElement {
         super();
 
         this.opened = false;
+        this.newEditedProject = {
+            name: "",
+            description: "",
+            pipeline: [
+                { name: "", stage: ""},
+            ],
+            status: "in progress",
+            priority: "high",
+        }
         this.pipelineData = [{ name: "",stage: "" }];
+        this.addPipeline = this.addPipeline.bind(this);
     }
+
+    // attributeChangedCallback(name, oldval, newval) {
+    //     if(name==="editedproject"){
+    //         this.newEditedProject = JSON.parse(newval);
+    //     console.log(this.newEditedProject)
+    //     }
+    //     super.attributeChangedCallback(name, oldval, newval);
+    // }
 
     /**
      * Add new Pipeline row.
      */
     addPipeline(){
-        this.pipelineData = [ ...this.pipelineData, { name: "",stage: "" }];
+        console.log("hello from add")
+        this.editedProject.pipeline = [ ...this.editedProject.pipeline, { name: "",stage: "" }];
+        console.log(this.editedProject.pipeline)
     }
 
     /**
@@ -327,72 +352,9 @@ class AddProjectDialog extends LitElement {
      * @returns {HTMLElement}
      */
     render(){
+        this.newEditedProject = { ...this.editedProject };
+        console.log(this.editedProject)
         return(html`
-            <custom-style>
-                <style is="custom-style">
-                    paper-textarea.custom:hover, paper-dropdown-menu.custom:hover, paper-input.custom:hover {
-                        border: 1px solid #29B6F6;
-                    }
-                    paper-textarea.custom, paper-dropdown-menu.custom, paper-input.custom {
-                        margin-top: 14px;
-                        --primary-text-color: #01579B;
-                        --paper-input-container-color: black;
-                        --paper-input-container-focus-color: black;
-                        --paper-input-container-invalid-color: black;
-                        color: black;
-                        border: 1px solid #BDBDBD;
-                        border-radius: 5px;
-                        width: 100%;
-
-                        /* Reset some defaults */
-                        --paper-input-container: { padding: 0;};
-                        --paper-input-container-underline: { display: none; height: 0;};
-                        --paper-input-container-underline-focus: { display: none; };
-
-                        /* New custom styles */
-                        --paper-input-container-input: {
-                            box-sizing: border-box;
-                            font-size: inherit;
-                            padding: 1px 20px;
-                            color: black;
-                        };
-                        --paper-input-container-input-focus: {
-                            background: rgba(0, 0, 0, 0);
-                        };
-                        --paper-input-container-input-invalid: {
-                            background: rgba(255, 0, 0, 0.3);
-                        };
-                        --paper-input-container-label: {
-                            top: -8px;
-                            left: 16px;
-                            background: white;
-                            padding: 2px;
-                            font-weight: bold;
-                        };
-                        --paper-input-container-label-floating: {
-                            width: auto;
-                        };
-                    }
-                    paper-textarea.custom{
-                        --paper-input-container: {
-                            box-sizing: border-box;
-                            font-size: inherit;
-                            padding: 1px 20px;
-                        };
-                        --paper-input-container-label: {
-                            left: 0px;
-                            top: -12px;
-                            font-weight: bold;
-                        };
-                        --paper-input-container-label-floating: {
-                            width: auto;
-                        };
-                    }
-                    paper-listbox{
-                        min-width: 500px;
-                    }
-                </style>
-            </custom-style>
             <paper-dialog id="animated" modal .opened=${this.opened}>
                 <h2 class="dialog-heading">Add Project</h2>
 
@@ -403,20 +365,87 @@ class AddProjectDialog extends LitElement {
                 </div>
 
                 <paper-dialog-scrollable>
+                    <custom-style>
+                        <style is="custom-style">
+                            paper-textarea.custom:hover, paper-dropdown-menu.custom:hover, paper-input.custom:hover {
+                                border: 1px solid #29B6F6;
+                            }
+                            paper-textarea.custom, paper-dropdown-menu.custom, paper-input.custom {
+                                margin-top: 14px;
+                                --primary-text-color: #01579B;
+                                --paper-input-container-color: black;
+                                --paper-input-container-focus-color: black;
+                                --paper-input-container-invalid-color: black;
+                                color: black;
+                                border: 1px solid #BDBDBD;
+                                border-radius: 5px;
+                                width: 100%;
 
-                    <paper-input class="custom" id="name" label="Name *" always-float-label required>
+                                /* Reset some defaults */
+                                --paper-input-container: { padding: 0;};
+                                --paper-input-container-underline: { display: none; height: 0;};
+                                --paper-input-container-underline-focus: { display: none; };
+
+                                /* New custom styles */
+                                --paper-input-container-input: {
+                                    box-sizing: border-box;
+                                    font-size: inherit;
+                                    padding: 1px 20px;
+                                    color: black;
+                                };
+                                --paper-input-container-input-focus: {
+                                    background: rgba(0, 0, 0, 0);
+                                };
+                                --paper-input-container-input-invalid: {
+                                    background: rgba(255, 0, 0, 0.3);
+                                };
+                                --paper-input-container-label: {
+                                    top: -8px;
+                                    left: 16px;
+                                    background: white;
+                                    padding: 2px;
+                                    font-weight: bold;
+                                };
+                                --paper-input-container-label-floating: {
+                                    width: auto;
+                                };
+                            }
+                            paper-textarea.custom{
+                                --paper-input-container: {
+                                    box-sizing: border-box;
+                                    font-size: inherit;
+                                    padding: 1px 20px;
+                                };
+                                --paper-input-container-label: {
+                                    left: 0px;
+                                    top: -12px;
+                                    font-weight: bold;
+                                };
+                                --paper-input-container-label-floating: {
+                                    width: auto;
+                                };
+                            }
+                            paper-listbox{
+                                min-width: 500px;
+                            }
+                        </style>
+                    </custom-style>
+
+                    <paper-input class="custom" id="name" label="Name *" always-float-label required
+                     .value=${this.newEditedProject.name}>
                     </paper-input>
 
                     <div class="pipeline-container">
                         <h4>Pipelines</h4>
-                        ${this.pipelineData.map((item, index)=>{
+                        ${this.editedProject &&
+                        this.editedProject.pipeline.map((item, index)=>{
                             return html`
                                 <div class="pipeline">
                                     <div class="pipeline-col">
                                         <div class="select-container">
                                             <label for="project-status">Pipeline *</label>
                                             <select class="custom-select pipeline-input" required
-                                             @change=${(e)=>this.onPipelineSelect(index, e.target.value)}>
+                                                @change=${(e)=>this.onPipelineSelect(index, e.target.value)}>
                                                 <option value="" disabled ?selected=${item.name==""}></option>
                                                 <option value="ASP Pipeline" ?selected=${item.name==="ASP Pipeline"}>ASP Pipeline</option>
                                                 <option value="Antibody Pipeline" ?selected=${item.name==="Antibody Pipeline"}>Antibody Pipeline</option>
@@ -427,17 +456,17 @@ class AddProjectDialog extends LitElement {
                                         <div class="select-container">
                                             <label for="project-status">Stage *</label>
                                             <select class="custom-select stage-input" required
-                                             @change=${(e)=>this.onStageSelect(index, e.target.value)}>
+                                                @change=${(e)=>this.onStageSelect(index, e.target.value)}>
                                                 <option value="" disabled ?selected=${item.stage==""}></option>
                                                 ${
                                                     item.name==="ASP Pipeline"?
                                                         html`<option value="Lead Identification" ?selected=${item.stage=="Lead Identification"}>Lead Identification</option>`
-                                                        : nothing
+                                                        : ""
                                                 }
                                                 ${
                                                     item.name==="Antibody Pipeline"?
                                                         html`<option value="Lead Validation" ?selected=${item.stage=="Lead Validation"}>Lead Validation</option>`
-                                                        : nothing
+                                                        : ""
                                                 }
                                             </select>
                                         </div>
@@ -454,37 +483,37 @@ class AddProjectDialog extends LitElement {
                     </div>
 
                     <paper-textarea class="custom" rows="3" always-float-label
-                     id="description" label="Project Description *" required>
+                     id="description" label="Project Description *" .value=${this.newEditedProject.description} required>
                     </paper-textarea>
 
                     <div class="select-container">
                         <label for="project-status">Priority *</label>
                         <select class="custom-select" id="priority" required>
-                            <option value="high" selected>High</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="low" selected>Low</option>
+                            <option value="high" ?selected=${this.newEditedProject.priority === "high"}>High</option>
+                            <option value="medium" ?selected=${this.newEditedProject.priority === "medium"}>Medium</option>
+                            <option value="low" ?selected=${this.newEditedProject.priority === "low"}>Low</option>
                         </select>
                     </div>
 
                     <div class="select-container">
                         <label for="project-status">Project Type *</label>
                         <select class="custom-select" id="type" required>
-                            <option value="external" selected>External Project</option>
-                            <option value="internal">Internal Project</option>
+                            <option value="external" ?selected=${this.newEditedProject.type === "external"}>External Project</option>
+                            <option value="internal" ?selected=${this.newEditedProject.type === "internal"}>Internal Project</option>
                         </select>
                     </div>
 
                     <div class="select-container">
                         <label for="project-status">Project Status</label>
                         <select class="custom-select" id="project-status" required>
-                            <option selected value="in progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="attrited">Attrited</option>
+                            <option selected value="in progress" ?selected=${this.newEditedProject.status === "in progress"}>In Progress</option>
+                            <option value="completed" ?selected=${this.newEditedProject.status === "completed"}>Completed</option>
+                            <option value="attrited" ?selected=${this.newEditedProject.status === "attrited"}>Attrited</option>
                         </select>
                     </div>
 
                     <paper-textarea class="custom" rows="3" id="status-description"
-                     always-float-label label="Status Description">
+                     always-float-label label="Status Description" .value=${this.newEditedProject.statusDescription}>
                     </paper-textarea>
 
                 </paper-dialog-scrollable>
@@ -497,6 +526,7 @@ class AddProjectDialog extends LitElement {
             </paper-dialog>
         `)
     }
+
 }
 
-customElements.define('add-project-dialog', AddProjectDialog);
+customElements.define('edit-project-dialog', EditProjectDialog);

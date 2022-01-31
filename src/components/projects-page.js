@@ -5,6 +5,7 @@ import { getLocalObject, setLocalObject } from '../modules/localObject';
 import './project-card';
 import './confirm-dialog';
 import './add-project-dialog';
+import './edit-project-dialog';
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-icons/iron-icons.js';
@@ -138,6 +139,13 @@ class ProjectsPage extends LitElement {
              * @type { isConfirmDialogOn: Boolean } 
              */
             isConfirmDialogOn : { type: Boolean },
+
+            /**
+             * Opens or closes the edit delete dialogue.
+             * 
+             * @type { isEditDialogOn: Boolean } 
+             */
+            isEditDialogOn : { type: Boolean },
         }
     }
 
@@ -150,8 +158,10 @@ class ProjectsPage extends LitElement {
         this.searchText = "";
         this.searchItem = "";
         this.isAddDialogOn = false;
+        this.isEditDialogOn = false;
+        this.isConfirmDialogOn = false;
 
-        // this.projects = getLocalObject("projects");
+        this.projects = getLocalObject("projects");
 
         if(!this.projects){
             this.projects = projects;
@@ -181,6 +191,18 @@ class ProjectsPage extends LitElement {
     }
 
     /**
+     * Toggle the value of parameter isConfirmDialogueOn.
+     * 
+     * @param {Object} project - The project currently being edited.
+     */
+    toggleEditDialog(project){
+        if(project){
+            this.editedProject = project;
+        }
+        this.isEditDialogOn = !this.isEditDialogOn;
+    }
+
+    /**
      * Deletes a project.
      * 
      * @param {Number} projectId - The id of the project to be deleted.
@@ -188,6 +210,7 @@ class ProjectsPage extends LitElement {
     deleteProject(projectId){
         let newProjects = this.projects.filter(project => project.id!==projectId);
         this.projects= [...newProjects];
+        setLocalObject("projects", this.projects);
     }
 
     /**
@@ -197,7 +220,20 @@ class ProjectsPage extends LitElement {
      */
     addProject(project){
         if(project){
+            let generatingId = true;
+            let id = 0;
+            while(generatingId){
+                id = Math.round(Math.random()*1000);
+                generatingId = false;
+                this.projects.map(project=>{
+                    if(project.id === id){
+                        generatingId = true;
+                    }
+                });
+            }
+            project.id = id;
             this.projects = [ project, ...this.projects ];
+            setLocalObject("projects", this.projects);
         }
     }
 
@@ -254,7 +290,9 @@ class ProjectsPage extends LitElement {
                             }
                         }else{
                             return html`
-                                <project-card .projectDetails=${project} .toggleConfirmDialog=${this.toggleConfirmDialog.bind(this)}></project-card>
+                                <project-card .projectDetails=${project}
+                                 .toggleEditDialog=${this.toggleEditDialog.bind(this)}
+                                 .toggleConfirmDialog=${this.toggleConfirmDialog.bind(this)}></project-card>
                             `;
                         }
                         
@@ -265,6 +303,9 @@ class ProjectsPage extends LitElement {
             <paper-icon-button class="add-project-button" icon="add" @click=${this.toggleAddDialog}></paper-icon-button>
             <add-project-dialog .opened=${this.isAddDialogOn} .closeDialog=${this.toggleAddDialog.bind(this)}
              .addProject=${this.addProject.bind(this)}></add-project-dialog>
+
+            <edit-project-dialog .opened=${this.isEditDialogOn} .closeDialog=${this.toggleEditDialog.bind(this)}
+             .addProject=${this.addProject.bind(this)} .editedProject=${this.editedProject}></edit-project-dialog>
             
             <confirm-dialog .opened=${this.isConfirmDialogOn} .closeDialog=${this.toggleConfirmDialog.bind(this)}
              .deleteProject=${this.deleteProject.bind(this)} .editedProject=${this.editedProject}></confirm-dialog>
