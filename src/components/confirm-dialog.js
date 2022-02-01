@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit';
 
-
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-button/paper-button.js';
@@ -60,15 +59,11 @@ class ConfirmDialog extends LitElement {
 
             .buttons{
                 padding: 25px 20px;
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
             }
 
-            .add-btn{
-                background-color: crimson;
-                color: white;
-                margin-right: 30px;
+            .delete-btn{
+                margin-left: 30px;
+                color: crimson;
             }
         `];
     }
@@ -149,9 +144,9 @@ class ConfirmDialog extends LitElement {
                 </div>
 
                 <div class="buttons">
-                    <paper-button autofocus raised class="add-btn"
-                     @click=${this.confirmDeleteEvent}>Delete</paper-button>
                     <paper-button dialog-dismiss>Cancel</paper-button>
+                    <paper-button autofocus class="delete-btn"
+                     @click=${this.confirmDeleteEvent}>Delete</paper-button>
                 </div>
             </paper-dialog>
         `)

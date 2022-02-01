@@ -4,7 +4,6 @@ import { initialProjects, emptyProjectItem } from '../modules/projects';
 
 import './project-card';
 import './confirm-dialog';
-import './add-project-dialog';
 import './edit-project-dialog';
 
 import '@polymer/iron-icon/iron-icon.js';
@@ -330,7 +329,7 @@ class ProjectsPage extends LitElement {
             </div>
 
             <paper-icon-button class="add-project-button" icon="add" @click=${()=>{
-                this.setEditedProject();
+                this.setEditedProject(emptyProjectItem);
                 this.setDialogName("Add");
                 this.toggleEditDialog();
             }}></paper-icon-button>

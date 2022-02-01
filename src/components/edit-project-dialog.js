@@ -1,4 +1,6 @@
-import { LitElement, html, css, nothing } from 'lit';
+import { LitElement, html, css } from 'lit';
+import { paperInputStyles } from '../customStyles/paperStyles';
+import './pipeline-section';
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-item/paper-item.js';
@@ -81,39 +83,6 @@ class EditProjectDialog extends LitElement {
                 margin: 25px 0px;
             }
 
-            .select-container{
-                width: 100%;
-                position: relative;
-            }
-
-            .select-container label{
-                position: absolute;
-                top: 7px;
-                left: 19px;
-                font-weight: bold;
-                font-size: 13px;
-                background-color: white;
-            }
-
-            .custom-select{
-                width: 100%;
-                border-radius: 5px;
-                margin-top: 16px;
-                border: 1px solid #BDBDBD;
-                padding-top: 16px;
-                padding-bottom: 6px;
-                padding-left: 17px;
-                outline: none;
-            }
-
-            .custom-select:focus{
-                border: 1px solid #29B6F6;
-            }
-
-            .select-container option{
-                padding: 10px;
-            }
-
             .buttons{
                 padding: 25px 20px;
                 display: flex;
@@ -125,42 +94,6 @@ class EditProjectDialog extends LitElement {
                 background-color: crimson;
                 color: white;
                 margin-right: 30px;
-            }
-
-            .pipeline-container{
-                padding: 10px 20px;
-                box-sizing: border-box;
-                background-color: rgba(245,245,245);
-                border-radius: 8px;
-                margin-top: 10px;
-            }
-
-            .pipeline{
-                display: flex;
-                width: 100%;
-                margin-bottom: 20px;
-                margin-right: 10px;
-                box-sizing: border-box;
-            }
-
-            .pipeline-col{
-                width: 40%;
-            }
-
-            .pipeline-input-err{
-                background-color: rgba(255,0,0,0.3);
-            }
-
-            .del-pipeline-btn{
-                color: grey;
-            }
-
-            .del-pipeline-btn:hover{
-                color: crimson;
-            }
-
-            .add-pipeline-btn{
-                color: crimson;
             }
         `];
     }
@@ -206,11 +139,20 @@ class EditProjectDialog extends LitElement {
              * @type { pipelineData: Array} 
              */
             pipelineData: { type: Array },
-
-            editedProject: { type: Object },
-
+            
+            /**
+             * The name of the dialog.
+             * 
+             * @type { dialogName: String } 
+             */
             dialogName: { type: String },
 
+            /**
+             * The project currently being edited.
+             * 
+             * @type { editedProject: Object } 
+             */
+            editedProject: { type: Object }
         }
     }
 
@@ -223,9 +165,12 @@ class EditProjectDialog extends LitElement {
         this.opened = false;
         this.dialogName = "";
         this.editedProject = {};
-        this.addPipeline = this.addPipeline.bind(this);
-    }
 
+        this.addPipeline = this.addPipeline.bind(this);
+        this.onStageSelect = this.onStageSelect.bind(this);
+        this.deletePipeline = this.deletePipeline.bind(this);
+        this.onPipelineSelect = this.onPipelineSelect.bind(this);
+    }
 
     /**
      * Add new Pipeline row.
@@ -241,7 +186,7 @@ class EditProjectDialog extends LitElement {
      * Delete pipeline of given index.
      */
     deletePipeline(pos){
-        if(this.pipelineData.length>1){
+        if(this.editedProject.pipeline.length<=1){
             return;
         }
             
@@ -280,87 +225,21 @@ class EditProjectDialog extends LitElement {
     }
 
     /**
-     * Validate data in pipeline.
-     */
-    validatePipeline(){
-        let pipelineElements = this.shadowRoot.querySelectorAll('.pipeline-input');
-        let stageElements = this.shadowRoot.querySelectorAll('.stage-input');
-        let validated = true;
-
-        this.pipelineData.map((item, index) => {
-            if(item.name == ""){
-                pipelineElements[index].classList.add("pipeline-input-err");
-                validated = false;
-            }else{
-                pipelineElements[index].classList.remove("pipeline-input-err");
-            }
-            
-            if(item.stage == ""){
-                stageElements[index].classList.add("pipeline-input-err");
-                validated = false;
-            }else{
-                stageElements[index].classList.remove("pipeline-input-err");
-            }
-        })
-        
-        return validated;
-    }
-
-
-    /**
      * Handle add project event.
      */
-    handleAddButtonClick(){
-        // let validated = true;
-        // let newProject = {};
+    handleButtonClick(){
+        if(!this.validate()){
+            return
+        }
 
-        // if(this.shadowRoot.querySelector('#name').validate()){
-        //     newProject.name = this.shadowRoot.querySelector('#name').value;
-        // }else{
-        //     validated = false;
-        // }
-        
-        // if(this.shadowRoot.querySelector('#description').validate()){
-        //     newProject.description = this.shadowRoot.querySelector('#description').value;
-        // }else{
-        //     validated = false;
-        // }
-        
-        // if(this.shadowRoot.querySelector('#priority').value){
-        //     newProject.priority = this.shadowRoot.querySelector('#priority').value;
-        // }else{
-        //     validated = false;
-        // }
-
-        // if(this.shadowRoot.querySelector('#project-status').value){
-        //     newProject.status = this.shadowRoot.querySelector('#project-status').value;
-        // }else{
-        //     validated = false;
-        // }
-
-        // if(this.shadowRoot.querySelector('#type').value){
-        //     newProject.type = this.shadowRoot.querySelector('#type').value;
-        // }else{
-        //     validated = false;
-        // }
-        
-        // if(this.shadowRoot.querySelector('#status-description').value){
-        //     newProject.statusDescription = this.shadowRoot.querySelector('#status-description').value;
-        // }
-
-        
-        // if(validated === true){
-        //     this.closeDialog();
-        // }
-        console.log(this.editedProject)
-        
-        // if(this.dialogName === "Edit"){
-        //     this.editProject({...this.editedProject});
-        // }else if(this.dialogName === "Add"){
-        //     this.addProject({ ...this.editedProject });
-        // }
+        this.closeDialog();
+        if(this.dialogName === "Edit"){
+            this.editProject({...this.editedProject});
+        }else if(this.dialogName === "Add"){
+            this.addProject({ ...this.editedProject });
+        }
+        this.clearInputs();
     }
-
 
     /**
      * Renders Html.
@@ -369,71 +248,7 @@ class EditProjectDialog extends LitElement {
      */
     render(){
         return(html`
-            <custom-style>
-                <style is="custom-style">
-                    paper-textarea.custom:hover, paper-dropdown-menu.custom:hover, paper-input.custom:hover {
-                        border: 1px solid #29B6F6;
-                    }
-                    paper-textarea.custom, paper-dropdown-menu.custom, paper-input.custom {
-                        margin-top: 14px;
-                        --primary-text-color: #01579B;
-                        --paper-input-container-color: black;
-                        --paper-input-container-focus-color: black;
-                        --paper-input-container-invalid-color: black;
-                        color: black;
-                        border: 1px solid #BDBDBD;
-                        border-radius: 5px;
-                        width: 100%;
-
-                        /* Reset some defaults */
-                        --paper-input-container: { padding: 0;};
-                        --paper-input-container-underline: { display: none; height: 0;};
-                        --paper-input-container-underline-focus: { display: none; };
-
-                        /* New custom styles */
-                        --paper-input-container-input: {
-                            box-sizing: border-box;
-                            font-size: inherit;
-                            padding: 1px 20px;
-                            color: black;
-                        };
-                        --paper-input-container-input-focus: {
-                            background: rgba(0, 0, 0, 0);
-                        };
-                        --paper-input-container-input-invalid: {
-                            background: rgba(255, 0, 0, 0.3);
-                        };
-                        --paper-input-container-label: {
-                            top: -8px;
-                            left: 16px;
-                            background: white;
-                            padding: 2px;
-                            font-weight: bold;
-                        };
-                        --paper-input-container-label-floating: {
-                            width: auto;
-                        };
-                    }
-                    paper-textarea.custom{
-                        --paper-input-container: {
-                            box-sizing: border-box;
-                            font-size: inherit;
-                            padding: 1px 20px;
-                        };
-                        --paper-input-container-label: {
-                            left: 0px;
-                            top: -12px;
-                            font-weight: bold;
-                        };
-                        --paper-input-container-label-floating: {
-                            width: auto;
-                        };
-                    }
-                    paper-listbox{
-                        min-width: 500px; 
-                    }
-                </style>
-            </custom-style>
+            ${paperInputStyles}
             <paper-dialog id="animated" modal .opened=${this.opened}>
                 <h2 class="dialog-heading">${this.dialogName} Project</h2>
 
@@ -446,64 +261,27 @@ class EditProjectDialog extends LitElement {
                 <paper-dialog-scrollable>
 
                     <paper-input class="custom" id="name" label="Name *" always-float-label required
-                     .value=${this.editedProject.name} @input=${ (e) => this.editedProject.name = e.target.value }>
+                     .value=${this.editedProject.name} @input=${ (e) => this.editedProject.name = e.target.value }
+                     error-message="This is a required field!">
                     </paper-input>
 
-                    <div class="pipeline-container">
-                        <h4>Pipelines</h4>
-                        ${this.editedProject.pipeline?
-                        this.editedProject.pipeline.map((item, index)=>{
-                            return html`
-                                <div class="pipeline">
-                                    <div class="pipeline-col">
-                                        <div class="select-container">
-                                            <label for="project-status">Pipeline *</label>
-                                            <select class="custom-select pipeline-input" required
-                                             @change=${(e)=>this.onPipelineSelect(index, e.target.value)}>
-                                                <option value="" disabled ?selected=${item.name==""}></option>
-                                                <option value="ASP Pipeline" ?selected=${item.name==="ASP Pipeline"}>ASP Pipeline</option>
-                                                <option value="Antibody Pipeline" ?selected=${item.name==="Antibody Pipeline"}>Antibody Pipeline</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="pipeline-col">
-                                        <div class="select-container">
-                                            <label for="project-status">Stage *</label>
-                                            <select class="custom-select stage-input" required
-                                             @change=${(e)=>this.onStageSelect(index, e.target.value)}>
-                                                <option value="" disabled ?selected=${item.stage==""}></option>
-                                                ${
-                                                    item.name==="ASP Pipeline"?
-                                                        html`<option value="Lead Identification" ?selected=${item.stage=="Lead Identification"}>Lead Identification</option>`
-                                                        : nothing
-                                                }
-                                                ${
-                                                    item.name==="Antibody Pipeline"?
-                                                        html`<option value="Lead Validation" ?selected=${item.stage=="Lead Validation"}>Lead Validation</option>`
-                                                        : nothing
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <paper-button class="del-pipeline-btn" @click=${()=>this.deletePipeline(index)}>
-                                        <iron-icon icon="delete"></iron-icon>
-                                    </paper-button>
-                                </div>
-                            `
-                        }): nothing }
-                        <paper-button class="add-pipeline-btn" @click=${this.addPipeline}>
-                            <iron-icon icon="add-circle" @click=${this.addPipeline}></iron-icon>Add Pipeline
-                        </paper-button>
-                    </div>
+                    <pipeline-section
+                     .addPipeline=${this.addPipeline}
+                     .onStageSelect=${this.onStageSelect}
+                     .deletePipeline=${this.deletePipeline}
+                     .onPipelineSelect=${this.onPipelineSelect}
+                     .editedProject=${this.editedProject}>
+                    </pipeline-section>
 
-                    <paper-textarea class="custom" rows="3" always-float-label
+                    <paper-textarea class="custom" rows="3" always-float-label required
                      id="description" label="Project Description *" .value=${this.editedProject.description}
-                     @input=${(e) => this.editedProject.description = e.target.value} required>
+                     @input=${(e) => this.editedProject.description = e.target.value} required
+                     error-message="This is a required field!">
                     </paper-textarea>
 
                     <paper-dropdown-menu class="custom" label="Priority *" always-float-label id="priority" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll
-                     @value-changed=${(e)=>this.editedProject.priority = e.target.value}>
+                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                     error-message="Please select priority!">
                         <paper-listbox slot="dropdown-content" selected="0">
                             ${dropdownItemsPriority.map((item) => {
                                 if(this.editedProject.priority === item.value){
@@ -525,7 +303,8 @@ class EditProjectDialog extends LitElement {
                     </paper-dropdown-menu>
 
                     <paper-dropdown-menu class="custom" label="Project Type *" always-float-label id="type" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll>
+                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                     error-message="Please select a project type!">
                         <paper-listbox slot="dropdown-content" selected="0">
                             ${dropdownItemsType.map((item) => {
                                 if(this.editedProject.type === item.value){
@@ -546,8 +325,9 @@ class EditProjectDialog extends LitElement {
                         </paper-listbox>
                     </paper-dropdown-menu>
 
-                    <paper-dropdown-menu class="custom" label="Project Status *" always-float-label id="project-status" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll>
+                    <paper-dropdown-menu class="custom" label="Project Status *" always-float-label id="status" 
+                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                     error-message="Please select a project status!">
                         <paper-listbox slot="dropdown-content" selected="0">
                             ${dropdownItemsStatus.map((item) => {
                                 if(this.editedProject.status === item.value){
@@ -577,13 +357,70 @@ class EditProjectDialog extends LitElement {
 
                 <div class="buttons">
                     <paper-button autofocus raised class="add-btn"
-                     @click=${this.handleAddButtonClick}>Add</paper-button>
+                     @click=${this.handleButtonClick}>${this.dialogName}</paper-button>
                     <paper-button dialog-dismiss>Cancel</paper-button>
                 </div>
             </paper-dialog>
         `)
     }
 
+    validate(){
+        let validated = true;
+        
+        this.shadowRoot.querySelector("#name").validate();
+        if(!this.editedProject.name){
+            validated = false;
+        }
+
+        this.shadowRoot.querySelector("#description").validate();
+        if(!this.editedProject.description){
+            validated = false;
+        }
+
+        this.shadowRoot.querySelector("#type").validate();
+        if(!this.editedProject.type){
+            validated = false;
+        }
+
+        this.shadowRoot.querySelector("#priority").validate();
+        if(!this.editedProject.priority){
+            validated = false;
+        }
+
+        this.shadowRoot.querySelector("#status").validate();
+        if(!this.editedProject.status){
+            validated = false;
+        }
+
+        let pipelineElements = this.shadowRoot.querySelector("pipeline-section").shadowRoot.querySelectorAll("#pipeline");
+        let stageElements = this.shadowRoot.querySelector("pipeline-section").shadowRoot.querySelectorAll("#stage");
+        this.editedProject.pipeline.map((item, index)=>{
+            pipelineElements[index].validate();
+            if(!item.name){
+                validated = false;
+            }
+            stageElements[index].validate();
+            if(!item.stage){
+                validated = false;
+            }
+        })
+
+        return validated;
+    }
+
+    clearInputs(){
+        this.shadowRoot.querySelector("#name").value = "";
+        this.shadowRoot.querySelector("#description").value = "";
+        this.shadowRoot.querySelector("#status-description").value = "";
+        let pipelineElements = this.shadowRoot.querySelector("pipeline-section").shadowRoot.querySelectorAll("#pipeline");
+        let stageElements = this.shadowRoot.querySelector("pipeline-section").shadowRoot.querySelectorAll("#stage");
+        pipelineElements.forEach(pipelineElement=>{
+            pipelineElement.value = "";
+        })
+        stageElements.forEach(stageElement=>{
+            stageElement.value = "";
+        })
+    }
 }
 
 customElements.define('edit-project-dialog', EditProjectDialog);

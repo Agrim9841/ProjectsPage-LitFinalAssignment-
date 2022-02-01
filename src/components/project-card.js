@@ -259,7 +259,7 @@ class ProjectCard extends LitElement {
                         ${this.projectDetails.name[0]}
                     </div>
                     <h2>${this.projectDetails.name}</h2>
-                    <paper-menu-button class="menu-button" no-animations>
+                    <paper-menu-button class="menu-button" no-animations horizontal-align="right" vertical-offset="50">
                         <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                         <paper-listbox slot="dropdown-content">
                             <paper-item class="menu-item" @click=${this.closeMenu}>

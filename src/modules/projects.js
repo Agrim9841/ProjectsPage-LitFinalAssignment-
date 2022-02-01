@@ -8,6 +8,7 @@ export let initialProjects = [
             { name: "Antibody Pipeline", stage: "Lead Validation"},
             { name: "ASP Pipeline", stage: "Lead Identification"},
         ],
+        type: "internal",
         status: "in progress",
         priority: "high",
     },
@@ -19,6 +20,7 @@ export let initialProjects = [
             { name: "ASP Pipeline", stage: "Lead Identification"},
             { name: "Antibody Pipeline", stage: "Lead Validation"},
         ],
+        type: "internal",
         status: "completed",
         statusDescription: "completed",
         priority: "high",
@@ -30,15 +32,16 @@ export let initialProjects = [
         pipeline: [
             { name: "ASP Pipeline", stage: "Lead Identification"},
         ],
+        type: "external",
         status: "completed",
         priority: "low",
     },
 ]
 
-export let emptyProjectItem= {
+export let emptyProjectItem = {
     name: "",
     description: "",
-    pipeline: [{ name: "", stage: "Lead Identification"}],
+    pipeline: [{ name: "", stage: ""}],
     status: "in progress",
     type: "internal",
     priority: "low"
