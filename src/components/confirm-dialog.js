@@ -117,6 +117,7 @@ class ConfirmDialog extends LitElement {
         super();
 
         this.opened = false;
+        this.editedProject = {};
     }
 
     /**
@@ -135,7 +136,7 @@ class ConfirmDialog extends LitElement {
     render(){
         return(html`
             <paper-dialog id="animated" modal .opened=${this.opened}>
-                <h2 class="dialog-heading">Delete Project "${this.editedProject.name}"</h2>
+                <h2 class="dialog-heading">Confirm Delete</h2>
 
                 <div class="cross-button" @click=${this.closeDialog}>
                     <paper-button>
@@ -144,7 +145,7 @@ class ConfirmDialog extends LitElement {
                 </div>
 
                 <div>
-                    Are you sure you want to delete this project?
+                    Are you sure you want to delete project "${this.editedProject.name}"?
                 </div>
 
                 <div class="buttons">

@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
-import { projects } from '../modules/projects';
 import { getLocalObject, setLocalObject } from '../modules/localObject';
+import { initialProjects, emptyProjectItem } from '../modules/projects';
 
 import './project-card';
 import './confirm-dialog';
@@ -113,11 +113,11 @@ class ProjectsPage extends LitElement {
             searchText: { type: String },
 
             /**
-             * The text after pressing search button.
+             * The name of the dialog.
              * 
-             * @type { searchItem: String } 
+             * @type { dialogName: String } 
              */
-            searchItem: { type: String },
+            dialogName: { type: String },
 
             /**
              * The project currently being edited.
@@ -136,9 +136,9 @@ class ProjectsPage extends LitElement {
             /**
              * Opens or closes the confirm delete dialogue.
              * 
-             * @type { isConfirmDialogOn: Boolean } 
+             * @type { isConfirmDialogOpen: Boolean } 
              */
-            isConfirmDialogOn : { type: Boolean },
+            isConfirmDialogOpen : { type: Boolean },
 
             /**
              * Opens or closes the edit delete dialogue.
@@ -155,20 +155,42 @@ class ProjectsPage extends LitElement {
     constructor(){
         super();
 
+        this.setProject();
+        this.dialogName = "";
         this.searchText = "";
-        this.searchItem = "";
         this.isAddDialogOn = false;
         this.isEditDialogOn = false;
-        this.isConfirmDialogOn = false;
+        this.isConfirmDialogOpen = false;
+        this.editedProject = { ...emptyProjectItem };
 
-        this.projects = getLocalObject("projects");
+        this.addProject = this.addProject.bind(this);
+        this.editProject = this.editProject.bind(this);
+        this.setDialogName = this.setDialogName.bind(this);
+        this.deleteProject = this.deleteProject.bind(this);
+        this.toggleEditDialog = this.toggleEditDialog.bind(this);
+        this.setEditedProject = this.setEditedProject.bind(this);
+        this.toggleConfirmDialog = this.toggleConfirmDialog.bind(this);
+    }
+
+    /**
+     * Setup initial value of projects from localstorage.
+     */
+    setProject(){
+        // this.projects = getLocalObject("projects");
 
         if(!this.projects){
-            this.projects = projects;
+            this.projects = initialProjects;
             setLocalObject("projects", this.projects);
         }
+    }
 
-        this.editedProject=this.projects[0];
+    /**
+     * Set value for dialogName.
+     * 
+     * @param {String} newName - The new value for dialogName.
+     */
+    setDialogName(newName){
+        this.dialogName = newName;
     }
 
     /**
@@ -179,38 +201,30 @@ class ProjectsPage extends LitElement {
     }
 
     /**
-     * Toggle the value of parameter isConfirmDialogueOn.
+     * Set the value of this.editedProject.
      * 
-     * @param {Object} project - The project currently being edited.
+     * @param {Object} newProject - The value to be set.
      */
-    toggleConfirmDialog(project){
-        if(project){
-            this.editedProject = project;
+    setEditedProject(newProject){
+        if(newProject){
+            this.editedProject = { ...newProject };
+        }else{
+            this.editedProject = { ...emptyProjectItem }
         }
-        this.isConfirmDialogOn = !this.isConfirmDialogOn;
     }
 
     /**
      * Toggle the value of parameter isConfirmDialogueOn.
-     * 
-     * @param {Object} project - The project currently being edited.
      */
-    toggleEditDialog(project){
-        if(project){
-            this.editedProject = project;
-        }
+    toggleConfirmDialog(){
+        this.isConfirmDialogOpen = !this.isConfirmDialogOpen;
+    }
+
+    /**
+     * Toggle the value of parameter isConfirmDialogueOn.
+     */
+    toggleEditDialog(){
         this.isEditDialogOn = !this.isEditDialogOn;
-    }
-
-    /**
-     * Deletes a project.
-     * 
-     * @param {Number} projectId - The id of the project to be deleted.
-     */
-    deleteProject(projectId){
-        let newProjects = this.projects.filter(project => project.id!==projectId);
-        this.projects= [...newProjects];
-        setLocalObject("projects", this.projects);
     }
 
     /**
@@ -218,45 +232,58 @@ class ProjectsPage extends LitElement {
      * 
      * @param {Object} project - The project to be added.
      */
-    addProject(project){
-        if(project){
-            let generatingId = true;
-            let id = 0;
-            while(generatingId){
-                id = Math.round(Math.random()*1000);
-                generatingId = false;
-                this.projects.map(project=>{
-                    if(project.id === id){
-                        generatingId = true;
-                    }
-                });
-            }
-            project.id = id;
-            this.projects = [ project, ...this.projects ];
-            setLocalObject("projects", this.projects);
+    addProject(newProject){
+        if(!newProject){
+            return;
         }
+
+        let generatingId = true;
+        let id = 0;
+        while(generatingId){
+            id = Math.round(Math.random()*1000);
+            generatingId = false;
+            this.projects.map(project=>{
+                if(project.id === id){
+                    generatingId = true;
+                }
+            });
+        }
+        newProject.id = id;
+        this.projects = [ newProject, ...this.projects ];
+        this.editedProject = { ...emptyProjectItem };
+        setLocalObject("projects", this.projects);
     }
 
     /**
-     * Handle change in search input field
+     * Edit an project.
      * 
-     * @param {Object} event - The input or keydown event object
+     * @param {Object} newProject - The id of the project to be deleted.
      */
-    handleSearchInput(event){
-        if(event.type === "input"){
-            this.searchText = event.target.value;
-        }else if(event.type === "keydown"){
-            if(event.key === "Enter"){
-                this.handleSearch();
+    editProject(newProject){
+        if(!newProject){
+            return;
+        }
+
+        let newProjects = this.projects.map(project => {
+            if(project.id === newProject.id){
+                return { ...newProject };
+            }else{
+                return project;
             }
-        } 
+        });
+        this.projects = [ ...newProjects ];
+        setLocalObject("projects", this.projects);
     }
 
     /**
-     * Handle search event
+     * Delete a project.
+     * 
+     * @param {Number} projectId - The id of the project to be deleted.
      */
-    handleSearch(){
-        this.searchItem = this.searchText;
+    deleteProject(projectId){
+        let newProjects = this.projects.filter(project => project.id!==projectId);
+        this.projects= [...newProjects];
+        setLocalObject("projects", this.projects);
     }
 
     /**
@@ -269,11 +296,10 @@ class ProjectsPage extends LitElement {
             <header class="container">
                 <h2>Projects</h2>
                 <div class="search-input-field">
-                    <iron-icon class="search-icon" icon="search" @click=${this.handleSearch}></iron-icon>
+                    <iron-icon class="search-icon" icon="search"></iron-icon>
                     <input class="search-input" type="text"
                      .value=${this.searchText}
-                     @input=${(event)=>this.handleSearchInput(event)}
-                     @keydown=${(event)=>this.handleSearchInput(event)}
+                     @input=${( event ) => this.searchText = event.target.value}
                      placeholder="Enter project name"/>
                 </div>
             </header>
@@ -281,8 +307,8 @@ class ProjectsPage extends LitElement {
             <div class="container projects">
                 ${
                     this.projects.map((project)=>{
-                        if(this.searchItem){
-                            let pos = project.name.toLowerCase().search(this.searchItem.toLowerCase());
+                        if(this.searchText){
+                            let pos = project.name.toLowerCase().search(this.searchText.toLowerCase());
                             if(pos>=0){
                                 return html`
                                     <project-card .projectDetails=${project}></project-card>
@@ -291,8 +317,11 @@ class ProjectsPage extends LitElement {
                         }else{
                             return html`
                                 <project-card .projectDetails=${project}
-                                 .toggleEditDialog=${this.toggleEditDialog.bind(this)}
-                                 .toggleConfirmDialog=${this.toggleConfirmDialog.bind(this)}></project-card>
+                                 .setDialogName = ${this.setDialogName}
+                                 .setEditedProject = ${this.setEditedProject}
+                                 .toggleEditDialog = ${this.toggleEditDialog}
+                                 .toggleConfirmDialog = ${this.toggleConfirmDialog}>
+                                </project-card>
                             `;
                         }
                         
@@ -300,15 +329,27 @@ class ProjectsPage extends LitElement {
                 }
             </div>
 
-            <paper-icon-button class="add-project-button" icon="add" @click=${this.toggleAddDialog}></paper-icon-button>
-            <add-project-dialog .opened=${this.isAddDialogOn} .closeDialog=${this.toggleAddDialog.bind(this)}
-             .addProject=${this.addProject.bind(this)}></add-project-dialog>
+            <paper-icon-button class="add-project-button" icon="add" @click=${()=>{
+                this.setEditedProject();
+                this.setDialogName("Add");
+                this.toggleEditDialog();
+            }}></paper-icon-button>
 
-            <edit-project-dialog .opened=${this.isEditDialogOn} .closeDialog=${this.toggleEditDialog.bind(this)}
-             .addProject=${this.addProject.bind(this)} .editedProject=${this.editedProject}></edit-project-dialog>
+            <edit-project-dialog
+             .opened = ${this.isEditDialogOn}
+             .dialogName = ${this.dialogName}
+             .addProject = ${this.addProject}
+             .editProject = ${this.editProject}
+             .editedProject = ${this.editedProject}
+             .closeDialog = ${this.toggleEditDialog}>
+            </edit-project-dialog>
             
-            <confirm-dialog .opened=${this.isConfirmDialogOn} .closeDialog=${this.toggleConfirmDialog.bind(this)}
-             .deleteProject=${this.deleteProject.bind(this)} .editedProject=${this.editedProject}></confirm-dialog>
+            <confirm-dialog
+             .opened = ${this.isConfirmDialogOpen}
+             .editedProject = ${this.editedProject}
+             .deleteProject = ${this.deleteProject}
+             .closeDialog = ${this.toggleConfirmDialog}>
+            </confirm-dialog>
             
         `)
     }

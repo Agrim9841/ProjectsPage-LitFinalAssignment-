@@ -1,4 +1,4 @@
-export let projects = [
+export let initialProjects = [
     {
         id: 0,
         name: "ASP Latest Test",
@@ -34,3 +34,12 @@ export let projects = [
         priority: "low",
     },
 ]
+
+export let emptyProjectItem= {
+    name: "",
+    description: "",
+    pipeline: [{ name: "", stage: "Lead Identification"}],
+    status: "in progress",
+    type: "internal",
+    priority: "low"
+}

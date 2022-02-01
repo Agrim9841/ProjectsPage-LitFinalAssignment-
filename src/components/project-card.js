@@ -9,6 +9,8 @@ import '@polymer/paper-menu-button/paper-menu-button.js';
 
 /**
  * <project-card
+ *  setDialogName = "Function to set dialog name."
+ *  setEditedProject = "Function to set Edited Project."
  *  projectDetails = "Object of individual project detail."
  *  toggleEditDialog = "Function to toggle edit project dialog."
  *  toggleConfirmDialog = "Function to toggle confirm delete project dialog."
@@ -157,6 +159,10 @@ class ProjectCard extends LitElement {
             .menu-icon{
                 color: grey;
             }
+
+            .menu-item{
+                padding: 0px 20px;
+            }
         `];
     }
 
@@ -175,6 +181,20 @@ class ProjectCard extends LitElement {
             projectDetails: { type: Object },
 
             /**
+             * Function to set dialog name.
+             * 
+             * @type { setDialogName: Function} 
+             */
+            setDialogName: { type: Function },
+
+            /**
+             * Function to set Edited Project.
+             * 
+             * @type { setEditedProject: Function} 
+             */
+            setEditedProject: { type: Function },
+
+            /**
              * Function to toggle Edit project dialog.
              * 
              * @type { toggleEditDialog: Function} 
@@ -184,7 +204,7 @@ class ProjectCard extends LitElement {
             /**
              * Function to toggle confirm delete project dialog.
              * 
-             * @type { toggleConfirmDialog: Function} 
+             * @type { toggleConfirmDialog: Function } 
              */
             toggleConfirmDialog: { type: Function },
         }
@@ -195,6 +215,35 @@ class ProjectCard extends LitElement {
      */
     constructor(){
         super();
+
+    }
+
+    /**
+     * Toggle the value of isMenuOpen.
+     */
+    closeMenu(){
+        let menuButton = this.shadowRoot.querySelector(".menu-button");
+        menuButton.close();
+    }
+
+    /**
+     * Handle Edit Click Event.
+     */
+    handleEditEvent(){
+        this.closeMenu();
+        this.setDialogName("Edit");
+        this.setEditedProject(this.projectDetails);
+        this.toggleEditDialog();
+    }
+
+    /**
+     * Handle Confirm Delete Click Event.
+     */
+    handleConfirmEvent(){
+        this.closeMenu();
+        this.setDialogName("Delete");
+        this.setEditedProject(this.projectDetails);
+        this.toggleConfirmDialog();
     }
 
     /**
@@ -213,19 +262,19 @@ class ProjectCard extends LitElement {
                     <paper-menu-button class="menu-button" no-animations>
                         <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
                         <paper-listbox slot="dropdown-content">
-                            <paper-item>
+                            <paper-item class="menu-item" @click=${this.closeMenu}>
                                 <paper-icon-item>
-                                    <iron-icon class="menu-icon"icon="info" slot="item-icon"></iron-icon>
+                                    <iron-icon class="menu-icon" icon="info" slot="item-icon"></iron-icon>
                                     View Details
                                 </paper-icon-item>
                             </paper-item>
-                            <paper-item @click=${()=>this.toggleEditDialog(this.projectDetails)}>
+                            <paper-item class="menu-item" @click=${this.handleEditEvent}>
                                 <paper-icon-item>
                                     <iron-icon class="menu-icon" icon="create" slot="item-icon"></iron-icon>
                                     Edit
                                 </paper-icon-item>
                             </paper-item>
-                            <paper-item @click=${()=>this.toggleConfirmDialog(this.projectDetails)}>
+                            <paper-item class="menu-item" @click=${this.handleConfirmEvent}>
                                 <paper-icon-item>
                                     <iron-icon class="menu-icon" icon="delete" slot="item-icon"></iron-icon>
                                     Delete
