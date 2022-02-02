@@ -6,21 +6,28 @@ import '@polymer/iron-icons/iron-icons.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 
-
+/**
+ * Pipeline Name Dropdown Items
+ */
 const pipelineNameList = [
     "ASP Pipeline", "Antibody Pipeline"
 ]
 
+/**
+ * Pipeline Stage Dropdown Items
+ */
 const pipelineStageList = [
     { name: "Lead Identification", requirements: ['ASP Pipeline']}, 
     { name: "Lead Validation", requirements: ['Antibody Pipeline']},
 ]
+
 /**
  * <pipeline-section
- *  opened = "The value that opens or close modal."
- *  closeDialog = "Function that closes the modal."
- *  editedProject = "The project currently being edited.""
- *  deleteProject = "Function to delete a project.
+ *  addPipeline = "Add new Pipeline row."
+ *  deletePipeline = "Delete pipeline of given index."
+ *  editedProject = "The project currently being edited."
+ *  onStageSelect = "Handle pipeline stage selection event."
+ *  onPipelineSelect = "Handle pipeline name selection event."
  * ></pipeline-section>
  */
 class Pipeline extends LitElement {
@@ -83,14 +90,39 @@ class Pipeline extends LitElement {
      */
     static get properties(){
         return {
+            /**
+             * Add new Pipeline row.
+             * 
+             * @type {addPipeline: Function}
+             */
             addPipeline: { type: Function },
-            
+
+            /**
+             * Handle pipeline stage selection event.
+             * 
+             * @type {onStageSelect: Function}
+             */
             onStageSelect: { type: Function },
             
+            /**
+             * Delete pipeline of given index.
+             * 
+             * @type {deletePipeline: Function}
+             */
             deletePipeline: { type: Function },
             
+            /**
+             * Handle pipeline name selection event.
+             * 
+             * @type {onPipelineSelect: Function}
+             */
             onPipelineSelect: { type: Function },
 
+            /**
+             * The project currently being edited.
+             * 
+             * @type { editedProject: Object } 
+             */
             editedProject: { type: Object },
         }
     }
@@ -125,19 +157,20 @@ class Pipeline extends LitElement {
                                  horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
                                  error-message="Please select a pipeline!">
                                     <paper-listbox slot="dropdown-content" ?selected=${pipelineItem.name? "0": nothing}>
-                                        ${pipelineNameList.map((item) => {
-                                            if(item === pipelineItem.name){
+   
+                                        ${pipelineNameList.map((dropdownItem) => {
+                                            if(dropdownItem === pipelineItem.name){
                                                 return html`
-                                                    <paper-item @click=${() => this.onPipelineSelect(index, item)}
-                                                    >${item}</paper-item>
+                                                    <paper-item @click=${() => this.onPipelineSelect(index, dropdownItem)}
+                                                    >${dropdownItem}</paper-item>
                                                 `
                                             }
                                         })}
-                                        ${pipelineNameList.map((item) => {
-                                            if(item !== pipelineItem.name){
+                                        ${pipelineNameList.map((dropdownItem) => {
+                                            if(dropdownItem !== pipelineItem.name){
                                                 return html`
-                                                    <paper-item @click=${() => this.onPipelineSelect(index, item)}
-                                                    >${item}</paper-item>
+                                                    <paper-item @click=${() => this.onPipelineSelect(index, dropdownItem)}
+                                                    >${dropdownItem}</paper-item>
                                                 `
                                             }
                                         })}
@@ -151,18 +184,18 @@ class Pipeline extends LitElement {
                                  horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
                                  error-message="Please select a stage!">
                                     <paper-listbox slot="dropdown-content" ?selected=${pipelineItem.stage? "0": nothing}>
-                                        ${pipelineStageList.map((item) => {
-                                            if(item === pipelineItem.stage){
+                                        ${pipelineStageList.map((dropdownItem) => {
+                                            if(dropdownItem === pipelineItem.stage){
                                                 return html`
-                                                    <paper-item @click=${() => this.onStageSelect(index, item.name)}
-                                                    >${item.name}</paper-item>
+                                                    <paper-item @click=${() => this.onStageSelect(index, dropdownItem.name)}
+                                                    >${dropdownItem.name}</paper-item>
                                                 `
                                             }
                                         })}
-                                        ${pipelineStageList.map((item) => {
-                                            if(item !== pipelineItem.stage){
+                                        ${pipelineStageList.map((dropdownItem) => {
+                                            if(dropdownItem !== pipelineItem.stage){
                                                 let required = false;
-                                                item.requirements.map((requirement)=>{
+                                                dropdownItem.requirements.map((requirement)=>{
                                                     if(requirement === pipelineItem.name){
                                                         required = true;
                                                     }
@@ -173,8 +206,8 @@ class Pipeline extends LitElement {
                                                 }
 
                                                 return html`
-                                                    <paper-item @click=${() => this.onStageSelect(index, item.name)}
-                                                    >${item.name}</paper-item>
+                                                    <paper-item @click=${() => this.onStageSelect(index, dropdownItem.name)}
+                                                    >${dropdownItem.name}</paper-item>
                                                 `
                                             }
                                         })}

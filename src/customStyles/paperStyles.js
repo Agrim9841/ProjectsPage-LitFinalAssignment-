@@ -66,6 +66,9 @@ export let paperInputStyles = html`
                     width: auto;
                 };
             }
+            paper-listbox.custom{
+                min-width: 500px;
+            }
         </style>
     </custom-style>
 `;

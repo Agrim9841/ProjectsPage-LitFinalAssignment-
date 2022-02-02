@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { paperInputStyles } from '../customStyles/paperStyles';
 import './pipeline-section';
 
+import '@polymer/iron-form/iron-form.js';
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/iron-icons/iron-icons.js';
@@ -12,19 +13,25 @@ import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 
+/**
+ * Priority Dropdown Items
+ */
 const dropdownItemsPriority = [
     {name: "Low", value: "low"},
     {name: "Medium", value: "medium"},
     {name: "High", value: "high"}
 ]
 
+/**
+ * Type Dropdown Items
+ */
 const dropdownItemsType = [
     {name: "External Project", value: "external"},
     {name: "Internal Project", value: "internal"}
 ]
 
 /**
- * 
+ * Status Dropdown Items
  */
 const dropdownItemsStatus = [
     {name: "In Progress", value: "in progress"},
@@ -132,13 +139,6 @@ class EditProjectDialog extends LitElement {
              * @type { editProject: Function} 
              */
             editProject: { type: Function },
-
-            /**
-             * Array of pipeline object.
-             * 
-             * @type { pipelineData: Array} 
-             */
-            pipelineData: { type: Array },
             
             /**
              * The name of the dialog.
@@ -184,6 +184,8 @@ class EditProjectDialog extends LitElement {
 
     /**
      * Delete pipeline of given index.
+     * 
+     * @param {Number} pos - The position of pipeline to be deleted.
      */
     deletePipeline(pos){
         if(this.editedProject.pipeline.length<=1){
@@ -199,6 +201,9 @@ class EditProjectDialog extends LitElement {
 
     /**
      * Handle pipeline name selection event.
+     * 
+     * @param {Number} pos - The position where to put value.
+     * @param {String} value - The new value.
      */
     onPipelineSelect(pos, value){
         let newPipelineData = [ ...this.editedProject.pipeline ];
@@ -213,6 +218,9 @@ class EditProjectDialog extends LitElement {
 
     /**
      * Handle pipeline stage selection event.
+     * 
+     * @param {Number} pos - The position where to put value.
+     * @param {String} value - The new value.
      */
     onStageSelect(pos, value){
         let newPipelineData = [ ...this.editedProject.pipeline ];
@@ -238,7 +246,6 @@ class EditProjectDialog extends LitElement {
         }else if(this.dialogName === "Add"){
             this.addProject({ ...this.editedProject });
         }
-        this.clearInputs();
     }
 
     /**
@@ -246,7 +253,7 @@ class EditProjectDialog extends LitElement {
      * 
      * @returns {HTMLElement}
      */
-    render(){
+    render(){ 
         return(html`
             ${paperInputStyles}
             <paper-dialog id="animated" modal .opened=${this.opened}>
@@ -259,43 +266,43 @@ class EditProjectDialog extends LitElement {
                 </div>
 
                 <paper-dialog-scrollable>
-
+                    
                     <paper-input class="custom" id="name" label="Name *" always-float-label required
-                     .value=${this.editedProject.name} @input=${ (e) => this.editedProject.name = e.target.value }
-                     error-message="This is a required field!">
+                    .value=${this.editedProject.name} @input=${ (event) => this.editedProject.name = event.target.value }
+                    error-message="This is a required field!">
                     </paper-input>
 
                     <pipeline-section
-                     .addPipeline=${this.addPipeline}
-                     .onStageSelect=${this.onStageSelect}
-                     .deletePipeline=${this.deletePipeline}
-                     .onPipelineSelect=${this.onPipelineSelect}
-                     .editedProject=${this.editedProject}>
+                    .addPipeline=${this.addPipeline}
+                    .onStageSelect=${this.onStageSelect}
+                    .deletePipeline=${this.deletePipeline}
+                    .onPipelineSelect=${this.onPipelineSelect}
+                    .editedProject=${this.editedProject}>
                     </pipeline-section>
 
                     <paper-textarea class="custom" rows="3" always-float-label required
-                     id="description" label="Project Description *" .value=${this.editedProject.description}
-                     @input=${(e) => this.editedProject.description = e.target.value} required
-                     error-message="This is a required field!">
+                    id="description" label="Project Description *" .value=${this.editedProject.description}
+                    @input=${(event) => this.editedProject.description = event.target.value} required
+                    error-message="This is a required field!">
                     </paper-textarea>
 
                     <paper-dropdown-menu class="custom" label="Priority *" always-float-label id="priority" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
-                     error-message="Please select priority!">
-                        <paper-listbox slot="dropdown-content" selected="0">
+                    horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                    error-message="Please select priority!">
+                        <paper-listbox slot="dropdown-content" selected="0" class="custom">
                             ${dropdownItemsPriority.map((item) => {
                                 if(this.editedProject.priority === item.value){
                                     return html`
                                         <paper-item @click=${() => this.editedProject.priority = item.value}
-                                         >${item.name}</paper-item>
+                                        >${item.name}</paper-item>
                                     `
                                 }
                             })}
-                            ${dropdownItemsPriority.map((item) => {
-                                if(this.editedProject.priority !== item.value){
+                            ${dropdownItemsPriority.map((dropdownItem) => {
+                                if(this.editedProject.priority !== dropdownItem.value){
                                     return html`
-                                        <paper-item @click=${() => this.editedProject.priority = item.value}
-                                         >${item.name}</paper-item>
+                                        <paper-item @click=${() => this.editedProject.priority = dropdownItem.value}
+                                        >${dropdownItem.name}</paper-item>
                                     `
                                 }
                             })}
@@ -303,22 +310,22 @@ class EditProjectDialog extends LitElement {
                     </paper-dropdown-menu>
 
                     <paper-dropdown-menu class="custom" label="Project Type *" always-float-label id="type" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
-                     error-message="Please select a project type!">
-                        <paper-listbox slot="dropdown-content" selected="0">
-                            ${dropdownItemsType.map((item) => {
-                                if(this.editedProject.type === item.value){
+                    horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                    error-message="Please select a project type!">
+                        <paper-listbox slot="dropdown-content" selected="0" class="custom">
+                            ${dropdownItemsType.map((dropdownItem) => {
+                                if(this.editedProject.type === dropdownItem.value){
                                     return html`
-                                        <paper-item @click=${() => this.editedProject.type = item.value}
-                                         >${item.name}</paper-item>
+                                        <paper-item @click=${() => this.editedProject.type = dropdownItem.value}
+                                        >${dropdownItem.name}</paper-item>
                                     `
                                 }
                             })}
-                            ${dropdownItemsType.map((item) => {
-                                if(this.editedProject.type !== item.value){
+                            ${dropdownItemsType.map((dropdownItem) => {
+                                if(this.editedProject.type !== dropdownItem.value){
                                     return html`
-                                        <paper-item @click=${() => this.editedProject.type = item.value}
-                                         >${item.name}</paper-item>
+                                        <paper-item @click=${() => this.editedProject.type = dropdownItem.value}
+                                        >${dropdownItem.name}</paper-item>
                                     `
                                 }
                             })}
@@ -326,22 +333,22 @@ class EditProjectDialog extends LitElement {
                     </paper-dropdown-menu>
 
                     <paper-dropdown-menu class="custom" label="Project Status *" always-float-label id="status" 
-                     horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
-                     error-message="Please select a project status!">
-                        <paper-listbox slot="dropdown-content" selected="0">
-                            ${dropdownItemsStatus.map((item) => {
-                                if(this.editedProject.status === item.value){
+                    horizontal-align="left" vertical-offset="50" no-animations allowOutsideScroll required
+                    error-message="Please select a project status!">
+                        <paper-listbox slot="dropdown-content" selected="0" class="custom">
+                            ${dropdownItemsStatus.map((dropdownItem) => {
+                                if(this.editedProject.status === dropdownItem.value){
                                     return html`
-                                        <paper-item @click=${() => this.editedProject.status = item.value}
-                                         >${item.name}</paper-item>
+                                        <paper-item @click=${() => this.editedProject.status = dropdownItem.value}
+                                        >${dropdownItem.name}</paper-item>
                                     `
                                 }
                             })}
-                            ${dropdownItemsStatus.map((item) => {
-                                if(this.editedProject.status !== item.value){
+                            ${dropdownItemsStatus.map((dropdownItem) => {
+                                if(this.editedProject.status !== dropdownItem.value){
                                     return html`
-                                        <paper-item @click=${() => this.editedProject.status = item.value}
-                                         >${item.name}</paper-item>
+                                        <paper-item @click=${() => this.editedProject.status = dropdownItem.value}
+                                        >${dropdownItem.name}</paper-item>
                                     `
                                 }
                             })}
@@ -349,8 +356,8 @@ class EditProjectDialog extends LitElement {
                     </paper-dropdown-menu>
 
                     <paper-textarea class="custom" rows="3" id="status-description"
-                     always-float-label label="Status Description" .value=${this.editedProject.statusDescription}
-                     @input=${(e)=>this.editedProject.statusDescription=e.target.value}>
+                    always-float-label label="Status Description" .value=${this.editedProject.statusDescription}
+                    @input=${(event)=>this.editedProject.statusDescription=event.target.value}>
                     </paper-textarea>
 
                 </paper-dialog-scrollable>
@@ -364,6 +371,11 @@ class EditProjectDialog extends LitElement {
         `)
     }
 
+    /**
+     * Validates all input field and returns true if validated.
+     * 
+     * @returns {Boolean}
+     */
     validate(){
         let validated = true;
         
@@ -408,6 +420,9 @@ class EditProjectDialog extends LitElement {
         return validated;
     }
 
+    /**
+     * Clears values in the fields.
+     */
     clearInputs(){
         this.shadowRoot.querySelector("#name").value = "";
         this.shadowRoot.querySelector("#description").value = "";

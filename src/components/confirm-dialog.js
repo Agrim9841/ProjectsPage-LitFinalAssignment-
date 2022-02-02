@@ -9,8 +9,8 @@ import '@polymer/paper-dialog/paper-dialog.js';
  * <confirm-dialog
  *  opened = "The value that opens or close modal."
  *  closeDialog = "Function that closes the modal."
- *  editedProject = "The project currently being edited.""
- *  deleteProject = "Function to delete a project.
+ *  editedProject = "The project currently being edited."
+ *  deleteProject = "Function to delete a project."
  * ></confirm-dialog>
  */
 class ConfirmDialog extends LitElement {
@@ -113,6 +113,8 @@ class ConfirmDialog extends LitElement {
 
         this.opened = false;
         this.editedProject = {};
+
+        this.confirmDeleteEvent = this.confirmDeleteEvent.bind(this)
     }
 
     /**

@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { classMap } from 'lit/directives/class-map.js';
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-icons/iron-icons.js';
@@ -163,6 +164,21 @@ class ProjectCard extends LitElement {
             .menu-item{
                 padding: 0px 20px;
             }
+
+            .redText{
+                color: red;
+                font-weight: bold;
+            }
+
+            .orangeText{
+                color: orange;
+                font-weight: bold;
+            }
+
+            .greenText{
+                color: green;
+                font-weight: bold;
+            }
         `];
     }
 
@@ -215,7 +231,6 @@ class ProjectCard extends LitElement {
      */
     constructor(){
         super();
-
     }
 
     /**
@@ -252,6 +267,16 @@ class ProjectCard extends LitElement {
      * @returns {HTMLElement}
      */
     render(){
+        const statusClasses = { 
+            redText: this.projectDetails.status === "attrited",
+            orangeText: this.projectDetails.status === "in progress",
+            greenText: this.projectDetails.status === "completed"
+        }
+        const priorityClasses = { 
+            redText: this.projectDetails.priority === "high",
+            orangeText: this.projectDetails.priority === "medium",
+            greenText: this.projectDetails.priority === "low"
+        }
         return(html`
             <div class="card">
                 <div class="card-heading">
@@ -293,11 +318,11 @@ class ProjectCard extends LitElement {
                 <div class="card-details">
                     <div class="card-details-column">
                         <h4>Priority</h4>
-                        <p>${this.projectDetails.priority}</p>
+                        <p class=${classMap(priorityClasses)}>${this.projectDetails.priority}</p>
                     </div>
                     <div class="card-details-column">
                         <h4>Status</h4>
-                        <p>${this.projectDetails.status}</p>
+                        <p class=${classMap(statusClasses)}>${this.projectDetails.status}</p>
                     </div>
                 </div>
 

@@ -145,6 +145,13 @@ class ProjectsPage extends LitElement {
              * @type { isEditDialogOn: Boolean } 
              */
             isEditDialogOn : { type: Boolean },
+
+            /**
+             * Function to set dialog name.
+             * 
+             * @type { setDialogName: Function} 
+             */
+            setDialogName: { type: Function },
         }
     }
 
@@ -175,7 +182,7 @@ class ProjectsPage extends LitElement {
      * Setup initial value of projects from localstorage.
      */
     setProject(){
-        // this.projects = getLocalObject("projects");
+        this.projects = getLocalObject("projects");
 
         if(!this.projects){
             this.projects = initialProjects;
@@ -190,13 +197,6 @@ class ProjectsPage extends LitElement {
      */
     setDialogName(newName){
         this.dialogName = newName;
-    }
-
-    /**
-     * Toggle the value of parameter isAddDialogueOn.
-     */
-    toggleAddDialog(){
-        this.isAddDialogOn = !this.isAddDialogOn;
     }
 
     /**
